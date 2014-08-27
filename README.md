@@ -22,16 +22,16 @@ process.
 A wrapper bash script can be used to call the different tools in the package.
 ```
 xcalibr hash
-xcalibr analyz
+xcalibr analyze
 xcalibr extract
 xcalibr reduce
 ```
 
 ### hash
-Run hash on a fastq file. This file may be gzipped. Hash also reads from STDIN if
+Run hash on a FastQ file. This file may be gzipped. Hash also reads (uncompressed FastQ) from STDIN if
 no filename is provided.
 
-### analyzehash
+### analyze
 Use analyzehash to debug the input data. It will print a summary table given de
 hash file and a range. You can use is to check constant parts or get a simple
 overview when relatively few barcodes have been sequenced.
@@ -44,6 +44,7 @@ or 2 placeholders are used a single table is generated. I three placeholders
 are used one is used to generate multiple output files.
 
 ### reduce
+Use 'xcalibr reduce' to filter the output table. Use the `--mincount` argument to specify the minimum number of reads that must be cocounted for a barcode to pass.
 
 ## Examples
 
