@@ -56,3 +56,4 @@ xcalibr analyze testdata.bin 7-22
 xcalibr extract --template X6CAGGCGCTTAGGATCCY15  testdata.bin > res-all.txt
 xcalibr extract --template X6CAGGCGCTTAGGATCCY15  testdata.bin | xcalibr reduce --mincount 5 > res-min5.txt
 ```
+You can use zcat if your FastQ file is gzipped.
