@@ -17,6 +17,9 @@ process.
 **xcalibr** uses a template sequence to locate and extract the barcodes. Only exact matches to the reference sequence are currently supported. The reference sequences should be provided as fasta files. If no reference is present all barcodes at the requested location are reported which will result in large output files. You can use `xcalibr reduce` to reduce remove barcodes with low counts.
 **xcalibr** supports three 
 
+## Dependencies
+The program is implemented in perl and currently uses only core modules.
+
 ## Command line tools
 
 A wrapper bash script can be used to call the different tools in the package.

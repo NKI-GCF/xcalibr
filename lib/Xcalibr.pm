@@ -5,8 +5,8 @@ use warnings;
 
 use 5.010;
 
-use Data::Dumper; # qw/dump/;
-use Sort::Naturally qw/nsort/;
+#use Data::Dumper; # qw/dump/;
+#use Sort::Naturally qw/nsort/;
 use Carp;
 use SequenceSet;
 
