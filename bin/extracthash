@@ -25,6 +25,7 @@ my $savesettings;
 my $references = {X=>undef, Y=>undef, Z=>undef};
 my $printall = {X=>undef, Y=>undef, Z=>undef};
 my $printempty = {X=>undef, Y=>undef, Z=>undef};
+my $mismatches = {X=>undef, Y=>undef, Z=>undef};
 my $sparse;
 my $output;
 my $help;
@@ -51,6 +52,9 @@ GetOptions(
     "printemptyX"    => \$printempty->{X},
     "printemptyY"    => \$printempty->{Y},
     "printemptyZ"    => \$printempty->{Z},
+    "mismatchesX"       => \$mismatches->{X},
+    "mismatchesY"       => \$mismatches->{Y},
+    "mismatchesZ"       => \$mismatches->{Z},
 	"sparse"       => \$sparse,
 	"output:s"       => \$output
 ) or pod2usage(2);
@@ -119,7 +123,7 @@ for my $t (sort { $usedtpl{$a} <=> $usedtpl{$b} } keys %usedtpl) {
 }
 
 #add the ref files
-$x->add_references($references);
+$x->add_references($references, $mismatches);
 
 #if splitby is set --output is required
 die "Need --output (as prefix) when using split functionality\n" if exists $x->{template}->{$split->{splitby}} && not defined $output;
@@ -176,6 +180,10 @@ Options:
     --printallX     Print barcodes that have no match in the reference file for X
     --printallY     Print barcodes that have no match in the reference file for Y
     --printallZ     Print barcodes that have no match in the reference file for Z
+
+    --mismatchesX   Allow one mismatch in provided for each barcode in reference fasta file X
+    --mismatchesY   Allow one mismatch in provided for each barcode in reference fasta file Y
+    --mismatchesZ   Allow one mismatch in provided for each barcode in reference fasta file Z
 
     --output        Provide the output filename (or prefix when --splitby is used)
 

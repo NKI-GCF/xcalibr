@@ -93,8 +93,13 @@ sub make_substring_function {
 sub add_references {
 	my $self = shift;
 	my $refs = shift;
+	my $mismatches = shift;
 	foreach my $ref (keys %$refs) {
-		$self->add_part_referencefile($ref, $refs->{$ref}) if defined $refs->{$ref};
+		if (defined $refs->{$ref}) {
+			$self->add_part_referencefile($ref, $refs->{$ref}, $mismatches->{$ref});
+		} elsif (defined $mismatches->{$ref}) {
+			croak "--mismatches$ref requires a --match$ref <file.fa>";
+		}
 	}
 
 	#TODO check for reference sequence for splitby
@@ -104,6 +109,7 @@ sub add_part_referencefile {
 	my $self = shift;
 	my $part = shift;
 	my $file = shift;
+	my $mismatches = shift;
 
 	croak "Reference file $file for $part cannot be read." unless -e $file;
 
@@ -112,7 +118,7 @@ sub add_part_referencefile {
 
 	#load the file as sequenceset
 	my $s = SequenceSet->new;
-	$s->read_from_fasta($file);
+	$s->read_from_fasta($file, $mismatches);
 	#add to self
 	$self->{refsets}->{$part} = $s;
 }

@@ -12,6 +12,7 @@ sub new {
 	bless $self, $class;
 
 	$self->{seqs} = {};
+	$self->{mismatch} = {};
 	$self->{len} = $len if defined $len;
 
 	return $self;
@@ -19,19 +20,41 @@ sub new {
 
 sub all_seqs {
 	my $self = shift;
-	return keys %{$self->seqs};
+	return (keys %{$self->seqs}, keys %{$self->mismatch});
 }
 
 sub all_names {
 	my $self = shift;
-	return map { join(":", @$_) } values(%{$self->{seqs}});
+	my @names = map { join(":", @$_) } values(%{$self->{seqs}});
+	return (@names, map { "mismatch1_".$_ } @names);
+}
+
+sub mismatches1 {
+	my $self = shift;
+	my $sequence = shift;
+
+	my @Nts = split //, $sequence;
+
+	my $ret;
+	for my $i (0..$#Nts) {
+        for my $mm (map { $_ eq $Nts[$i] ? () : $_ } qw/A T C G/) {
+
+			my $seq = join("", ($i == 0 ? () : @Nts[0..($i-1)]), $mm, ($i == $#Nts ? () : @Nts[($i+1)..$#{Nts}]));
+			carp "$seq already observed\n" if exists $self->{seqs}->{$seq};
+			croak "$seq already observed as mismatches\n" if exists $self->{mismatch}->{$seq};
+			push @$ret, $seq;
+		}
+    }
+	return $ret;
 }
 
 sub read_from_fasta {
 	my $self = shift;
 	my $file = shift;
+	my $mismatches = shift;
+	$mismatches = 0 if defined $mismatches;
 
-	croak "File not found $file" unless -e $file;	
+	croak "File not found $file" unless -e $file;
 
 	require Bio::SeqIO;
 
@@ -39,15 +62,27 @@ sub read_from_fasta {
 	while (my $seq = $in->next_seq() ) {
 		my $s = $seq->seq;
 		$s = substr $s,0,$self->{len} if exists $self->{len};
-		push @{$self->{seqs}->{$s}}, $seq->id;	
+		croak "Duplicate sequence $s\n" if exists $self->{seqs}->{$s};
+		push @{$self->{seqs}->{$s}}, $seq->id;
+		if (defined $mismatches) {
+			carp "Sequence $s corresponds to a mismatch\n" if exists $self->{mismatch}->{$s};
+			my $r = $self->mismatches1($s);
+			$mismatches += @$r;
+			push (@{$self->{seqs}->{$_}}, "mismatch1_".$seq->id) foreach @$r;
+		}
 	}
+	print STDERR "Including matching against $mismatches mismatches\n" if defined $mismatches;
 }
 
 sub match {
 	my $self = shift;
 	my $seq = shift;
-	return undef unless exists $self->{seqs}->{$seq};
-	return join(":", @{$self->{seqs}->{$seq}});
+	if (exists $self->{seqs}->{$seq}) {
+		return join(":", @{$self->{seqs}->{$seq}});
+	} elsif (exists $self->{mismatch}->{$seq}) {
+		return "mismatch1_".join(":", @{$self->{seqs}->{$seq}});
+	}
+	return undef;
 }
 
 1;
