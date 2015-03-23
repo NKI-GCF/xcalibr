@@ -40,8 +40,8 @@ sub mismatches1 {
         for my $mm (map { $_ eq $Nts[$i] ? () : $_ } qw/A T C G/) {
 
 			my $seq = join("", ($i == 0 ? () : @Nts[0..($i-1)]), $mm, ($i == $#Nts ? () : @Nts[($i+1)..$#{Nts}]));
-			carp "$seq already observed\n" if exists $self->{seqs}->{$seq};
-			croak "$seq already observed as mismatches\n" if exists $self->{mismatch}->{$seq};
+			#print STDERR "$seq already observed as sequence\n" if exists $self->{seqs}->{$seq};
+			#print STDERR "$seq already observed as mismatch\n" if exists $self->{mismatch}->{$seq};
 			push @$ret, $seq;
 		}
     }
@@ -62,10 +62,9 @@ sub read_from_fasta {
 	while (my $seq = $in->next_seq() ) {
 		my $s = $seq->seq;
 		$s = substr $s,0,$self->{len} if exists $self->{len};
-		croak "Duplicate sequence $s\n" if exists $self->{seqs}->{$s};
-		push @{$self->{seqs}->{$s}}, $seq->id;
+		unshift @{$self->{seqs}->{$s}}, $seq->id;
 		if (defined $mismatches) {
-			carp "Sequence $s corresponds to a mismatch\n" if exists $self->{mismatch}->{$s};
+			print STDERR "Sequence $s corresponds to a mismatch\n" if exists $self->{mismatch}->{$s};
 			my $r = $self->mismatches1($s);
 			$mismatches += @$r;
 			push (@{$self->{seqs}->{$_}}, "mismatch1_".$seq->id) foreach @$r;
@@ -80,7 +79,7 @@ sub match {
 	if (exists $self->{seqs}->{$seq}) {
 		return join(":", @{$self->{seqs}->{$seq}});
 	} elsif (exists $self->{mismatch}->{$seq}) {
-		return "mismatch1_".join(":", @{$self->{seqs}->{$seq}});
+		return "mismatch1_".join(":", @{$self->{mismatch}->{$seq}});
 	}
 	return undef;
 }
