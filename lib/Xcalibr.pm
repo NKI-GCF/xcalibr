@@ -101,7 +101,6 @@ sub add_references {
 			croak "--mismatches$ref requires a --match$ref <file.fa>";
 		}
 	}
-
 	#TODO check for reference sequence for splitby
 }
 
@@ -233,7 +232,7 @@ sub write_tables {
 			   unless $splitfile eq "nohit_splitby" && not exists $self->{template}->{$self->{settings}->{split}->{splitby}};
 			#add .txt to filename if necessary
 			$filename .= "\.txt" unless $filename =~ /\.txt$/i;
-			open(OUT,">",$filename);
+			open(OUT,">",$filename) or croak "$filename:$!";
 			select(OUT);
 		}
 		#print header
