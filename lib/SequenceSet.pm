@@ -37,7 +37,7 @@ sub mismatches1 {
 
 	my $ret;
 	for my $i (0..$#Nts) {
-        for my $mm (map { $_ eq $Nts[$i] ? () : $_ } qw/A T C G/) {
+        for my $mm (map { $_ eq $Nts[$i] ? () : $_ } qw/A T C G N/) {
 
 			my $seq = join("", ($i == 0 ? () : @Nts[0..($i-1)]), $mm, ($i == $#Nts ? () : @Nts[($i+1)..$#{Nts}]));
 			#print STDERR "$seq already observed as sequence\n" if exists $self->{seqs}->{$seq};
