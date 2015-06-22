@@ -238,7 +238,9 @@ sub write_tables {
 		#print header
 		say join("\t", "name", @cols);
 		foreach my $row (@rows) {
-			say join("\t", $row, map {$self->{countresults}->{$splitfile}->{$row}->{$_} // 0} @cols);
+			say join("\t", $row, map { $self->{countresults}->{$splitfile}->{$row}->{$_} // 0} @cols)
+				if defined $self->{settings}->{printempty}->{$self->{settings}->{split}->{rows}} or
+					scalar(keys %{$self->{countresults}->{$splitfile}->{$row}}) != 0;
 		}
 		close(OUT);
 	}
