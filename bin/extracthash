@@ -121,7 +121,7 @@ for my $t (sort { $usedtpl{$a} <=> $usedtpl{$b} } keys %usedtpl) {
 	say STDERR "Auto-assigned $t to $next (based on $t length in template)";
 	$split->{$next} = $t; #because the hashref sits in $x this just works (but is ugly)
 }
-if (exists $x->{template}->{$split->{splitby}} && exists $mismatches->{$split->{splitby}}) {
+if (exists($x->{template}->{$split->{splitby}}) && defined($mismatches->{$split->{splitby}})) {
 	die "Don't use --mismatches and --splitby for same X, Y or Z";
 }
 
