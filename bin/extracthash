@@ -79,6 +79,11 @@ foreach my $key (keys %$split) {
 	die "Split value for $key should be either X,Y or Z" unless $split->{$key} =~ /^[XYZ]{1}$/;
 }
 
+#relative implies requireseq because it uses a search to position the template
+if ($reltoseq && not defined $reqseq) {
+	print STDERR "Use of --relative implies --requireseq (added)\n";
+}
+
 #read from settings file
 if($sf) {
 	die "Settings file requires Config::Auto as a dependency" unless eval("require Config::Auto"); 
