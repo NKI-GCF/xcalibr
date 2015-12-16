@@ -93,10 +93,14 @@ sub make_substring_function {
 sub add_references {
 	my $self = shift;
 	my $refs = shift;
+	my $mismatches = shift;
 	foreach my $ref (keys %$refs) {
-		$self->add_part_referencefile($ref, $refs->{$ref}) if defined $refs->{$ref};
+		if (defined $refs->{$ref}) {
+			$self->add_part_referencefile($ref, $refs->{$ref}, $mismatches->{$ref});
+		} elsif (defined $mismatches->{$ref}) {
+			croak "--mismatches$ref requires a --match$ref <file.fa>";
+		}
 	}
-
 	#TODO check for reference sequence for splitby
 }
 
@@ -104,6 +108,7 @@ sub add_part_referencefile {
 	my $self = shift;
 	my $part = shift;
 	my $file = shift;
+	my $mismatches = shift;
 
 	croak "Reference file $file for $part cannot be read." unless -e $file;
 
@@ -112,7 +117,7 @@ sub add_part_referencefile {
 
 	#load the file as sequenceset
 	my $s = SequenceSet->new;
-	$s->read_from_fasta($file);
+	$s->read_from_fasta($file, $mismatches);
 	#add to self
 	$self->{refsets}->{$part} = $s;
 }
@@ -227,13 +232,15 @@ sub write_tables {
 			   unless $splitfile eq "nohit_splitby" && not exists $self->{template}->{$self->{settings}->{split}->{splitby}};
 			#add .txt to filename if necessary
 			$filename .= "\.txt" unless $filename =~ /\.txt$/i;
-			open(OUT,">",$filename);
+			open(OUT,">",$filename) or croak "$filename:$!";
 			select(OUT);
 		}
 		#print header
 		say join("\t", "name", @cols);
 		foreach my $row (@rows) {
-			say join("\t", $row, map {$self->{countresults}->{$splitfile}->{$row}->{$_} // 0} @cols);
+			say join("\t", $row, map { $self->{countresults}->{$splitfile}->{$row}->{$_} // 0} @cols)
+				if defined $self->{settings}->{printempty}->{$self->{settings}->{split}->{rows}} or
+					scalar(keys %{$self->{countresults}->{$splitfile}->{$row}}) != 0;
 		}
 		close(OUT);
 	}
